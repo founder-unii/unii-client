@@ -33,3 +33,15 @@ go.work.sum
 # .vscode/
 
 .DS_Store
+
+# Client dependencies and build artifacts
+node_modules/
+**/dist/
+**/bin/
+**/obj/
+**/.local/
+**/__pycache__/
+**/.pytest_cache/
+**/target/
+**/.build/
+**/.dart_tool/

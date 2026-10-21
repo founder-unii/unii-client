@@ -1,0 +1,3 @@
+package com.malviys.unii.model;
+
+public record ChatChoice(int index, ChatMessage message, String finishReason) {}

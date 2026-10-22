@@ -242,3 +242,76 @@ test("Action icon is passed as component object and receives data-icon (shadcn r
   assert.equal(element.props["data-icon"], "inline-start");
   assert.equal((element.props as any).className, undefined); // No sizing classes
 });
+
+test("UniiProvider streams chat response chunks and triggers tool call upon completion", async () => {
+  const chunks: Array<{
+    choices: Array<{
+      delta: {
+        content?: string;
+        tool_calls?: Array<{
+          id: string;
+          type: "function";
+          function: { name: string; arguments: string };
+        }>;
+      };
+    }>;
+  }> = [
+    { choices: [{ delta: { content: "Hello " } }] },
+    { choices: [{ delta: { content: "there!" } }] },
+    {
+      choices: [
+        {
+          delta: {
+            tool_calls: [
+              {
+                id: "call_123",
+                type: "function" as const,
+                function: {
+                  name: "open_modal",
+                  arguments: '{"view":"pricing"}',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ];
+
+  let actionExecutedWith: any = null;
+  const mockAction: UniiActionConfig = {
+    name: "open_modal",
+    description: "Opens view modal",
+    handler: (args) => {
+      actionExecutedWith = args;
+
+      return { success: true };
+    },
+  };
+
+  let accumulatedContent = "";
+  const accumulatedToolCalls: any[] = [];
+  const stateUpdates: string[] = [];
+
+  for (const chunk of chunks) {
+    const delta = chunk.choices[0].delta;
+
+    if (delta.content) {
+      accumulatedContent += delta.content;
+    }
+    if (delta.tool_calls) {
+      accumulatedToolCalls.push(...delta.tool_calls);
+    }
+    stateUpdates.push(accumulatedContent);
+  }
+
+  if (accumulatedToolCalls.length > 0 && mockAction.handler) {
+    const args = JSON.parse(accumulatedToolCalls[0].function.arguments);
+
+    await mockAction.handler(args);
+  }
+
+  assert.equal(accumulatedContent, "Hello there!");
+  assert.deepEqual(stateUpdates, ["Hello ", "Hello there!", "Hello there!"]);
+  assert.deepEqual(actionExecutedWith, { view: "pricing" });
+});

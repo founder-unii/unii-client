@@ -4,16 +4,19 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "typescript"
+    "typescript",
+    "react"
   ],
   "scripts": {
-    "build": "npm run build --workspace @unii/sdk",
-    "typecheck": "npm run typecheck --workspace @unii/sdk",
-    "test": "npm run test --workspace @unii/sdk",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
     "check": "npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   },

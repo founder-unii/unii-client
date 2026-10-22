@@ -6,11 +6,29 @@ export interface AuthVerifyResponse {
   projectId: string;
 }
 
+export interface ToolCallFunction {
+  name: string;
+  arguments: string;
+}
+
+export interface ToolCall {
+  id: string;
+  type: "function" | string;
+  function: ToolCallFunction;
+}
+
+export interface FrontendToolDefinition {
+  name: string;
+  description: string;
+  parameters?: Record<string, any>;
+}
+
 export type ChatRole = "system" | "user" | "assistant";
 
 export interface ChatMessage {
   role: ChatRole | string;
   content: string;
+  tool_calls?: ToolCall[];
 }
 
 export interface ChatCompletionRequest {
@@ -20,6 +38,8 @@ export interface ChatCompletionRequest {
   temperature?: number;
   maxTokens?: number;
   projectId?: string;
+  tools?: FrontendToolDefinition[];
+  frontendTools?: FrontendToolDefinition[];
 }
 
 export interface ChatCompletionChoice {
@@ -46,6 +66,7 @@ export interface ChatCompletionResponse {
 export interface ChatCompletionChunkDelta {
   role?: string;
   content?: string;
+  tool_calls?: ToolCall[];
 }
 
 export interface ChatCompletionChunkChoice {

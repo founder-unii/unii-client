@@ -2,19 +2,22 @@
 
 Official client libraries for the Unii API. Each language has its own directory and README.
 
-| Language       | Directory                  | Package                         |
-| -------------- | -------------------------- | ------------------------------- |
-| Go             | [go/](go/)                 | `github.com/malviys/unii-go/go` |
-| TypeScript     | [typescript/](typescript/) | `@unii/sdk`                     |
-| Python         | [python/](python/)         | `unii`                          |
-| Java           | [java/](java/)             | `com.malviys:unii-java-sdk`     |
-| Kotlin         | [kotlin/](kotlin/)         | `com.malviys.unii:unii-kotlin`  |
-| Rust           | [rust/](rust/)             | `unii`                          |
-| C# / .NET      | [csharp/](csharp/)         | `Unii.Sdk`                      |
-| Ruby           | [ruby/](ruby/)             | `unii`                          |
-| PHP            | [php/](php/)               | `unii/sdk`                      |
-| Swift          | [swift/](swift/)           | `Unii`                          |
-| Dart / Flutter | [dart/](dart/)             | `unii`                          |
+| Language                   | Directory                  | Package                         |
+| -------------------------- | -------------------------- | ------------------------------- |
+| Go                         | [go/](go/)                 | `github.com/malviys/unii-go/go` |
+| TypeScript                 | [typescript/](typescript/) | `@unii/sdk`                     |
+| React                      | [react/](react/)           | `@unii/react`                   |
+| Android (Jetpack Compose)  | [android/](android/)       | `com.malviys.unii:unii-compose` |
+| Flutter                    | [flutter/](flutter/)       | `unii_flutter`                  |
+| Python                     | [python/](python/)         | `unii`                          |
+| Java                       | [java/](java/)             | `com.malviys:unii-java-sdk`     |
+| Kotlin                     | [kotlin/](kotlin/)         | `com.malviys.unii:unii-kotlin`  |
+| Dart                       | [dart/](dart/)             | `unii`                          |
+| Rust                       | [rust/](rust/)             | `unii`                          |
+| C# / .NET                  | [csharp/](csharp/)         | `Unii.Sdk`                      |
+| Ruby                       | [ruby/](ruby/)             | `unii`                          |
+| PHP                        | [php/](php/)               | `unii/sdk`                      |
+| Swift                      | [swift/](swift/)           | `Unii`                          |
 
 ## Go development
 

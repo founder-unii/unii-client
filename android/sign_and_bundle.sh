@@ -6,7 +6,7 @@ AAR_FILE=$(find "$DIR/build/outputs/aar" -name "*release*.aar" 2>/dev/null | hea
 
 if [ -z "$AAR_FILE" ] || [ ! -f "$AAR_FILE" ]; then
     echo "Error: No release AAR found."
-    echo "Please build the library first by running: gradle assembleRelease"
+    echo "Please build the library first by running: ./gradlew assembleRelease"
     exit 1
 fi
 

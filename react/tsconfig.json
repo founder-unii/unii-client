@@ -14,8 +14,9 @@
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "rootDir": "./src",
     "paths": {
-      "@unii/sdk": ["../typescript/src/index.ts"]
+      "@unii/sdk": ["../typescript/dist/index.d.ts"]
     }
   },
   "include": ["src/**/*"]

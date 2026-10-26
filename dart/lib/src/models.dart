@@ -1,27 +1,117 @@
+class ToolCallFunction {
+  final String name;
+  final String arguments;
+
+  ToolCallFunction({required this.name, required this.arguments});
+
+  factory ToolCallFunction.fromJson(Map<String, dynamic> json) =>
+      ToolCallFunction(
+        name: json['name'] as String? ?? '',
+        arguments: json['arguments'] as String? ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'arguments': arguments,
+      };
+}
+
+class ToolCall {
+  final String id;
+  final String type;
+  final ToolCallFunction function;
+
+  ToolCall({
+    required this.id,
+    this.type = 'function',
+    required this.function,
+  });
+
+  factory ToolCall.fromJson(Map<String, dynamic> json) => ToolCall(
+        id: json['id'] as String? ?? '',
+        type: json['type'] as String? ?? 'function',
+        function: ToolCallFunction.fromJson(
+            (json['function'] as Map<String, dynamic>?) ?? {}),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'function': function.toJson(),
+      };
+}
+
+class FrontendToolDefinition {
+  final String name;
+  final String description;
+  final Map<String, dynamic>? parameters;
+
+  FrontendToolDefinition({
+    required this.name,
+    required this.description,
+    this.parameters,
+  });
+
+  factory FrontendToolDefinition.fromJson(Map<String, dynamic> json) =>
+      FrontendToolDefinition(
+        name: json['name'] as String? ?? '',
+        description: json['description'] as String? ?? '',
+        parameters: json['parameters'] as Map<String, dynamic>?,
+      );
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'name': name,
+      'description': description,
+    };
+    if (parameters != null) {
+      map['parameters'] = parameters;
+    }
+    return map;
+  }
+}
+
 class ChatMessage {
   final String role;
   final String content;
+  final List<ToolCall>? toolCalls;
 
-  ChatMessage({required this.role, required this.content});
+  ChatMessage({
+    required this.role,
+    required this.content,
+    this.toolCalls,
+  });
 
   factory ChatMessage.user(String content) =>
       ChatMessage(role: 'user', content: content);
 
-  factory ChatMessage.assistant(String content) =>
-      ChatMessage(role: 'assistant', content: content);
+  factory ChatMessage.assistant(String content, [List<ToolCall>? toolCalls]) =>
+      ChatMessage(role: 'assistant', content: content, toolCalls: toolCalls);
 
   factory ChatMessage.system(String content) =>
       ChatMessage(role: 'system', content: content);
 
-  Map<String, dynamic> toJson() => {
-        'role': role,
-        'content': content,
-      };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'role': role,
+      'content': content,
+    };
+    if (toolCalls != null) {
+      map['tool_calls'] = toolCalls!.map((t) => t.toJson()).toList();
+    }
+    return map;
+  }
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json) => ChatMessage(
-        role: json['role'] as String? ?? 'user',
-        content: json['content'] as String? ?? '',
-      );
+  factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    final rawTools = json['tool_calls'] as List<dynamic>?;
+    return ChatMessage(
+      role: json['role'] as String? ?? 'user',
+      content: json['content'] as String? ?? '',
+      toolCalls: rawTools
+          ?.map((t) => ToolCall.fromJson(t as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }
 
 class Citation {
@@ -68,6 +158,8 @@ class ChatCompletionRequest {
   final double? temperature;
   final int? maxTokens;
   final String? projectId;
+  final List<FrontendToolDefinition>? frontendTools;
+  final List<FrontendToolDefinition>? tools;
 
   ChatCompletionRequest({
     this.messages,
@@ -76,6 +168,8 @@ class ChatCompletionRequest {
     this.temperature,
     this.maxTokens,
     this.projectId,
+    this.frontendTools,
+    this.tools,
   });
 
   Map<String, dynamic> toJson() {
@@ -96,6 +190,12 @@ class ChatCompletionRequest {
     }
     if (projectId != null) {
       map['projectId'] = projectId;
+    }
+    if (frontendTools != null) {
+      map['frontendTools'] = frontendTools!.map((t) => t.toJson()).toList();
+    }
+    if (tools != null) {
+      map['tools'] = tools!.map((t) => t.toJson()).toList();
     }
     return map;
   }
@@ -138,13 +238,20 @@ class ChatCompletionResponse {
 class StreamDelta {
   final String? role;
   final String? content;
+  final List<ToolCall>? toolCalls;
 
-  StreamDelta({this.role, this.content});
+  StreamDelta({this.role, this.content, this.toolCalls});
 
-  factory StreamDelta.fromJson(Map<String, dynamic> json) => StreamDelta(
-        role: json['role'] as String?,
-        content: json['content'] as String?,
-      );
+  factory StreamDelta.fromJson(Map<String, dynamic> json) {
+    final rawTools = json['tool_calls'] as List<dynamic>?;
+    return StreamDelta(
+      role: json['role'] as String?,
+      content: json['content'] as String?,
+      toolCalls: rawTools
+          ?.map((t) => ToolCall.fromJson(t as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }
 
 class StreamChoice {

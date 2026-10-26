@@ -83,5 +83,30 @@ void main() {
     test('UniiClient rejects empty apiKey', () {
       expect(() => UniiClient(apiKey: ''), throwsArgumentError);
     });
+
+    test('ToolCall & FrontendToolDefinition serialization', () {
+      final toolCall = ToolCall(
+        id: 'call_abc',
+        type: 'function',
+        function: ToolCallFunction(
+          name: 'get_stock_quote',
+          arguments: '{"symbol":"AAPL"}',
+        ),
+      );
+
+      final msg = ChatMessage.assistant(
+        'Looking up stock price',
+        [toolCall],
+      );
+
+      final json = msg.toJson();
+      expect(json['role'], 'assistant');
+      expect((json['tool_calls'] as List).length, 1);
+
+      final decoded = ChatMessage.fromJson(json);
+      expect(decoded.toolCalls?.first.id, 'call_abc');
+      expect(decoded.toolCalls?.first.function.name, 'get_stock_quote');
+      expect(decoded.toolCalls?.first.function.arguments, '{"symbol":"AAPL"}');
+    });
   });
 }

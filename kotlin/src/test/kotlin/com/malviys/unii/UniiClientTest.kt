@@ -80,4 +80,27 @@ class UniiClientTest {
             UniiClient(apiKey = "")
         }
     }
+
+    @Test
+    fun testToolCallSerialization() {
+        val toolCall = ToolCall(
+            id = "call_123",
+            type = "function",
+            function = ToolCallFunction(
+                name = "get_weather",
+                arguments = "{\"location\":\"San Francisco\"}"
+            )
+        )
+        val assistantMsg = ChatMessage.assistant(
+            content = "Checking weather...",
+            toolCalls = listOf(toolCall)
+        )
+
+        val serialized = json.encodeToString(assistantMsg)
+        val decoded = json.decodeFromString<ChatMessage>(serialized)
+        assertEquals("assistant", decoded.role)
+        assertEquals(1, decoded.toolCalls?.size)
+        assertEquals("call_123", decoded.toolCalls?.first()?.id)
+        assertEquals("get_weather", decoded.toolCalls?.first()?.function?.name)
+    }
 }

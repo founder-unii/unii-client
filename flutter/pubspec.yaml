@@ -1,0 +1,19 @@
+name: unii_flutter
+description: Official Flutter SDK for the Unii conversational AI platform with CopilotKit-style tool execution and generative UI.
+version: 0.1.0
+homepage: https://github.com/malviys/unii
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  unii:
+    path: ../dart
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: "^1.24.0"

@@ -9,6 +9,15 @@
     <Authors>Unii Team</Authors>
     <Description>Official C# / .NET client library for Unii platform</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/unii-founder/unii-client.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/unii-founder/unii-client</PackageProjectUrl>
+    <PackageTags>unii;ai;sdk;llm;rag;copilot</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="LICENSE" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
 </Project>

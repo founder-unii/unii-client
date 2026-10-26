@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.dev-unii</groupId>
+  <artifactId>unii-compose</artifactId>
+  <version>0.1.0</version>
+  <packaging>aar</packaging>
+
+  <name>unii-compose</name>
+  <description>Official Android &amp; Jetpack Compose SDK for Unii conversational AI platform</description>
+  <url>https://github.com/unii-founder/unii-client</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>unii</id>
+      <name>Unii Team</name>
+      <email>dev@getunii.com</email>
+      <organization>Unii</organization>
+      <organizationUrl>https://github.com/unii-founder</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/unii-founder/unii-client.git</connection>
+    <developerConnection>scm:git:ssh://github.com:unii-founder/unii-client.git</developerConnection>
+    <url>https://github.com/unii-founder/unii-client</url>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.dev-unii</groupId>
+      <artifactId>unii-kotlin</artifactId>
+      <version>0.1.0</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

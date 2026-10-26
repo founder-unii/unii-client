@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.malviys.unii"
+group = "io.github.dev-unii"
 version = "0.1.0"
 
 android {
@@ -53,7 +53,7 @@ android {
 }
 
 dependencies {
-    api("com.malviys.unii:unii-kotlin:0.1.0")
+    api("io.github.dev-unii:unii-kotlin:0.1.0")
 
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
@@ -79,7 +79,7 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.malviys.unii"
+                groupId = "io.github.dev-unii"
                 artifactId = "unii-compose"
                 version = "0.1.0"
 

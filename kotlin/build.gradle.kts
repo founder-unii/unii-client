@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.malviys.unii"
+group = "io.github.dev-unii"
 version = "0.1.0"
 
 repositories {
@@ -34,7 +34,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = "com.malviys.unii"
+            groupId = "io.github.dev-unii"
             artifactId = "unii-kotlin"
             version = "0.1.0"
 

@@ -10,7 +10,7 @@ Add to your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.malviys.unii:unii-kotlin:0.1.0")
+    implementation("io.github.dev-unii:unii-kotlin:0.1.0")
 }
 ```
 

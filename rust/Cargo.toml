@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/unii-founder/unii-client"
 homepage = "https://github.com/unii-founder/unii-client"
-authors = ["Unii Team <dev@unii.dev>"]
+authors = ["Unii Team <dev@getunii.com>"]
 keywords = ["unii", "ai", "sdk", "llm", "rag"]
 categories = ["api-bindings", "web-programming"]
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Official React SDK for Unii with CopilotKit-style tool execution and generative UI",
   "license": "MIT",
-  "author": "Unii Team",
+  "author": "Unii Team <dev@getunii.com>",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

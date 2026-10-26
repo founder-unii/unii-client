@@ -98,7 +98,7 @@ afterEvaluate {
                         developer {
                             id.set("unii")
                             name.set("Unii Team")
-                            email.set("dev@unii.dev")
+                            email.set("dev@getunii.com")
                         }
                     }
                     scm {

@@ -1,12 +1,16 @@
 plugins {
-    id("com.android.library") version "8.2.2"
-    id("org.jetbrains.kotlin.android") version "1.9.22"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("com.android.library") version "9.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
     `maven-publish`
 }
 
 group = "io.github.dev-unii"
 version = "0.1.0"
+
+kotlin {
+    jvmToolchain(17)
+}
 
 android {
     namespace = "com.malviys.unii.compose"
@@ -33,16 +37,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     publishing {

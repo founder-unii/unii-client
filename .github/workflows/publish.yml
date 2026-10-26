@@ -18,7 +18,7 @@ on:
           - nuget (csharp)
           - rubygems (ruby)
           - pub (dart & flutter)
-          - maven (java & kotlin)
+          - maven (java, kotlin & android)
           - go (module proxy)
           - packagist (php)
 
@@ -160,8 +160,8 @@ jobs:
           flutter pub publish --force
 
   publish-maven:
-    name: Publish Maven Central (Java & Kotlin)
-    if: github.event.inputs.target == 'all' || github.event.inputs.target == 'maven (java & kotlin)' || github.event_name == 'release'
+    name: Publish Maven Central (Java, Kotlin & Android)
+    if: github.event.inputs.target == 'all' || github.event.inputs.target == 'maven (java, kotlin & android)' || github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -178,17 +178,36 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Build and Sign Java Bundle
+      - name: Build, Sign, and Upload Java Bundle
         run: |
           cd java
           mvn clean package
           ./sign_and_bundle.sh
-
-      - name: Upload Java Bundle to Central Portal
-        run: |
           curl --fail --retry 3 \
             -H "Authorization: Bearer ${{ secrets.MAVEN_CENTRAL_TOKEN }}" \
-            -F "bundle=@java/bundle-unii-java-sdk-0.1.0.zip" \
+            -F "bundle=@bundle-unii-java-sdk-0.1.0.zip" \
+            "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
+
+      - name: Build, Sign, and Upload Kotlin Bundle
+        run: |
+          cd kotlin
+          chmod +x gradlew sign_and_bundle.sh
+          ./gradlew publishToMavenLocal
+          ./sign_and_bundle.sh
+          curl --fail --retry 3 \
+            -H "Authorization: Bearer ${{ secrets.MAVEN_CENTRAL_TOKEN }}" \
+            -F "bundle=@bundle-unii-kotlin-0.1.0.zip" \
+            "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
+
+      - name: Build, Sign, and Upload Android Bundle
+        run: |
+          cd android
+          chmod +x gradlew sign_and_bundle.sh
+          ./gradlew publishToMavenLocal
+          ./sign_and_bundle.sh
+          curl --fail --retry 3 \
+            -H "Authorization: Bearer ${{ secrets.MAVEN_CENTRAL_TOKEN }}" \
+            -F "bundle=@bundle-unii-compose-0.1.0.zip" \
             "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
 
   publish-go:

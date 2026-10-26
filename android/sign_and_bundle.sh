@@ -2,12 +2,11 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-AAR_FILE=$(find "$DIR/build/outputs/aar" -name "*release*.aar" 2>/dev/null | head -n 1)
+M2_DIR="$HOME/.m2/repository/io/github/dev-unii/unii-compose/0.1.0"
 
-if [ -z "$AAR_FILE" ] || [ ! -f "$AAR_FILE" ]; then
-    echo "Error: No release AAR found."
-    echo "Please build the library first by running: ./gradlew assembleRelease"
-    exit 1
+if [ ! -d "$M2_DIR" ] || [ ! -f "$M2_DIR/unii-compose-0.1.0.aar" ]; then
+    echo "==> Building and publishing to Maven Local..."
+    "$DIR/gradlew" -p "$DIR" publishReleasePublicationToMavenLocal
 fi
 
 TMP_DIR="/tmp/central-bundle-android/io/github/dev-unii/unii-compose/0.1.0"
@@ -15,16 +14,19 @@ rm -rf /tmp/central-bundle-android
 mkdir -p "$TMP_DIR"
 
 echo "==> Copying AAR, POM, and Sources..."
-cp "$AAR_FILE" "$TMP_DIR/unii-compose-0.1.0.aar"
-cp "$DIR/pom.xml" "$TMP_DIR/unii-compose-0.1.0.pom"
+cp "$M2_DIR/unii-compose-0.1.0.aar" "$TMP_DIR/"
+cp "$M2_DIR/unii-compose-0.1.0.pom" "$TMP_DIR/"
+if [ -f "$M2_DIR/unii-compose-0.1.0-sources.jar" ]; then
+    cp "$M2_DIR/unii-compose-0.1.0-sources.jar" "$TMP_DIR/"
+fi
+if [ -f "$M2_DIR/unii-compose-0.1.0.module" ]; then
+    cp "$M2_DIR/unii-compose-0.1.0.module" "$TMP_DIR/"
+fi
 
-# Pack sources if available
-cd "$DIR/src/main"
-jar -cf "$TMP_DIR/unii-compose-0.1.0-sources.jar" kotlin AndroidManifest.xml
 cd "$TMP_DIR"
 
 echo "==> Signing with GPG and computing checksums..."
-for f in unii-compose-0.1.0.aar unii-compose-0.1.0.pom unii-compose-0.1.0-sources.jar; do
+for f in $(ls); do
     gpg --armor --detach-sign "$f"
     shasum -a 1 "$f" | awk '{print $1}' > "$f.sha1"
     md5 -q "$f" > "$f.md5"

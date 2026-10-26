@@ -1,12 +1,16 @@
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("plugin.serialization")
+    id("com.android.library") version "9.0.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
     `maven-publish`
 }
 
-group = "com.malviys.unii"
+group = "io.github.dev-unii"
 version = "0.1.0"
+
+kotlin {
+    jvmToolchain(17)
+}
 
 android {
     namespace = "com.malviys.unii.compose"
@@ -33,16 +37,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
     }
 
     publishing {
@@ -53,7 +49,7 @@ android {
 }
 
 dependencies {
-    api("com.malviys.unii:unii-kotlin:0.1.0")
+    api("io.github.dev-unii:unii-kotlin:0.1.0")
 
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
@@ -79,14 +75,14 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.malviys.unii"
+                groupId = "io.github.dev-unii"
                 artifactId = "unii-compose"
                 version = "0.1.0"
 
                 pom {
                     name.set("unii-compose")
                     description.set("Official Android & Jetpack Compose SDK for Unii conversational AI platform")
-                    url.set("https://github.com/unii-founder/unii-client")
+                    url.set("https://github.com/founder-unii/unii-client")
                     licenses {
                         license {
                             name.set("MIT License")
@@ -102,9 +98,9 @@ afterEvaluate {
                         }
                     }
                     scm {
-                        connection.set("scm:git:git://github.com/unii-founder/unii-client.git")
-                        developerConnection.set("scm:git:ssh://github.com:unii-founder/unii-client.git")
-                        url.set("https://github.com/unii-founder/unii-client")
+                        connection.set("scm:git:git://github.com/founder-unii/unii-client.git")
+                        developerConnection.set("scm:git:ssh://github.com:founder-unii/unii-client.git")
+                        url.set("https://github.com/founder-unii/unii-client")
                     }
                 }
             }

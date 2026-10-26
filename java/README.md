@@ -8,7 +8,7 @@ Compatible with Java 17+ and Kotlin 1.9+. Zero third-party dependencies (uses Ja
 
 ```xml
 <dependency>
-    <groupId>com.malviys</groupId>
+    <groupId>io.github.dev-unii</groupId>
     <artifactId>unii-java-sdk</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -17,7 +17,7 @@ Compatible with Java 17+ and Kotlin 1.9+. Zero third-party dependencies (uses Ja
 ## Gradle (Kotlin / Groovy)
 
 ```kotlin
-implementation("com.malviys:unii-java-sdk:0.1.0")
+implementation("io.github.dev-unii:unii-java-sdk:0.1.0")
 ```
 
 ## Usage in Java

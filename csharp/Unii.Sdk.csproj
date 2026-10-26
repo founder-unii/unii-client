@@ -10,8 +10,8 @@
     <Description>Official C# / .NET client library for Unii platform</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/unii-founder/unii-client.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/unii-founder/unii-client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/founder-unii/unii-client.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/founder-unii/unii-client</PackageProjectUrl>
     <PackageTags>unii;ai;sdk;llm;rag;copilot</PackageTags>
   </PropertyGroup>
 

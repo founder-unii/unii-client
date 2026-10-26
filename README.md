@@ -7,11 +7,11 @@ Official client libraries for the Unii API. Each language has its own directory 
 | Go                         | [go/](go/)                 | `github.com/malviys/unii-go/go` |
 | TypeScript                 | [typescript/](typescript/) | `@unii/sdk`                     |
 | React                      | [react/](react/)           | `@unii/react`                   |
-| Android (Jetpack Compose)  | [android/](android/)       | `com.malviys.unii:unii-compose` |
+| Android (Jetpack Compose)  | [android/](android/)       | `io.github.dev-unii:unii-compose` |
 | Flutter                    | [flutter/](flutter/)       | `unii_flutter`                  |
 | Python                     | [python/](python/)         | `unii`                          |
-| Java                       | [java/](java/)             | `com.malviys:unii-java-sdk`     |
-| Kotlin                     | [kotlin/](kotlin/)         | `com.malviys.unii:unii-kotlin`  |
+| Java                       | [java/](java/)             | `io.github.dev-unii:unii-java-sdk` |
+| Kotlin                     | [kotlin/](kotlin/)         | `io.github.dev-unii:unii-kotlin`  |
 | Dart                       | [dart/](dart/)             | `unii`                          |
 | Rust                       | [rust/](rust/)             | `unii`                          |
 | C# / .NET                  | [csharp/](csharp/)         | `Unii.Sdk`                      |

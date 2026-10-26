@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.malviys.unii"
+group = "io.github.dev-unii"
 version = "0.1.0"
 
 repositories {
@@ -34,14 +34,14 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = "com.malviys.unii"
+            groupId = "io.github.dev-unii"
             artifactId = "unii-kotlin"
             version = "0.1.0"
 
             pom {
                 name.set("unii-kotlin")
                 description.set("Official Kotlin client SDK for Unii conversational AI platform")
-                url.set("https://github.com/unii-founder/unii-client")
+                url.set("https://github.com/founder-unii/unii-client")
                 licenses {
                     license {
                         name.set("MIT License")
@@ -57,9 +57,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/unii-founder/unii-client.git")
-                    developerConnection.set("scm:git:ssh://github.com:unii-founder/unii-client.git")
-                    url.set("https://github.com/unii-founder/unii-client")
+                    connection.set("scm:git:git://github.com/founder-unii/unii-client.git")
+                    developerConnection.set("scm:git:ssh://github.com:founder-unii/unii-client.git")
+                    url.set("https://github.com/founder-unii/unii-client")
                 }
             }
         }

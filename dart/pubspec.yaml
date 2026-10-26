@@ -1,9 +1,9 @@
 name: unii
 description: Official Dart and Flutter client SDK for the Unii conversational AI platform.
 version: 0.1.0
-homepage: https://github.com/unii-founder/unii-client
-repository: https://github.com/unii-founder/unii-client/tree/main/dart
-issue_tracker: https://github.com/unii-founder/unii-client/issues
+homepage: https://github.com/founder-unii/unii-client
+repository: https://github.com/founder-unii/unii-client/tree/main/dart
+issue_tracker: https://github.com/founder-unii/unii-client/issues
 topics:
   - ai
   - sdk

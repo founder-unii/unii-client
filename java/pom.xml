@@ -8,7 +8,32 @@
   <packaging>jar</packaging>
 
   <name>unii-java-sdk</name>
-  <description>Official Java and Kotlin client library for Unii platform</description>
+  <description>Official Java client library for Unii platform</description>
+  <url>https://github.com/unii-founder/unii-client</url>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>unii</id>
+      <name>Unii Team</name>
+      <email>dev@getunii.com</email>
+      <organization>Unii</organization>
+      <organizationUrl>https://github.com/unii-founder</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git://github.com/unii-founder/unii-client.git</connection>
+    <developerConnection>scm:git:ssh://github.com:unii-founder/unii-client.git</developerConnection>
+    <url>https://github.com/unii-founder/unii-client</url>
+  </scm>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
@@ -36,6 +61,32 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.0</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

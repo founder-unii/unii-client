@@ -2,7 +2,8 @@
   "name": "@unii/sdk",
   "version": "0.1.0",
   "description": "Official TypeScript SDK for Unii API",
-  "private": true,
+  "license": "MIT",
+  "author": "Unii Team <dev@getunii.com>",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,6 +14,31 @@
       "default": "./src/index.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unii-founder/unii-client.git",
+    "directory": "typescript"
+  },
+  "homepage": "https://github.com/unii-founder/unii-client#readme",
+  "bugs": {
+    "url": "https://github.com/unii-founder/unii-client/issues"
+  },
+  "keywords": [
+    "unii",
+    "ai",
+    "sdk",
+    "typescript",
+    "llm",
+    "rag"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

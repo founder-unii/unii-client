@@ -2,7 +2,7 @@
   "name": "unii/sdk",
   "description": "Official PHP client library for the Unii conversational AI platform",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "keywords": [
     "unii",
     "sdk",
@@ -11,9 +11,15 @@
     "rag",
     "chat"
   ],
+  "homepage": "https://github.com/unii-founder/unii-client",
+  "support": {
+    "issues": "https://github.com/unii-founder/unii-client/issues",
+    "source": "https://github.com/unii-founder/unii-client"
+  },
   "authors": [
     {
-      "name": "Unii Team"
+      "name": "Unii Team",
+      "email": "dev@getunii.com"
     }
   ],
   "require": {

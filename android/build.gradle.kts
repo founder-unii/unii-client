@@ -86,7 +86,7 @@ afterEvaluate {
                 pom {
                     name.set("unii-compose")
                     description.set("Official Android & Jetpack Compose SDK for Unii conversational AI platform")
-                    url.set("https://github.com/unii-founder/unii-client")
+                    url.set("https://github.com/founder-unii/unii-client")
                     licenses {
                         license {
                             name.set("MIT License")
@@ -102,9 +102,9 @@ afterEvaluate {
                         }
                     }
                     scm {
-                        connection.set("scm:git:git://github.com/unii-founder/unii-client.git")
-                        developerConnection.set("scm:git:ssh://github.com:unii-founder/unii-client.git")
-                        url.set("https://github.com/unii-founder/unii-client")
+                        connection.set("scm:git:git://github.com/founder-unii/unii-client.git")
+                        developerConnection.set("scm:git:ssh://github.com:founder-unii/unii-client.git")
+                        url.set("https://github.com/founder-unii/unii-client")
                     }
                 }
             }

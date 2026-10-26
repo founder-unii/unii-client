@@ -221,4 +221,4 @@ jobs:
           curl -s -XPOST \
             -H "content-type:application/json" \
             "https://packagist.org/api/update-package?username=${{ secrets.PACKAGIST_USERNAME }}&apiToken=${{ secrets.PACKAGIST_TOKEN }}" \
-            -d '{"repository":{"url":"https://github.com/unii-founder/unii-client"}}' || true
+            -d '{"repository":{"url":"https://github.com/founder-unii/unii-client"}}' || true

@@ -9,7 +9,7 @@
 
   <name>unii-compose</name>
   <description>Official Android &amp; Jetpack Compose SDK for Unii conversational AI platform</description>
-  <url>https://github.com/unii-founder/unii-client</url>
+  <url>https://github.com/founder-unii/unii-client</url>
 
   <licenses>
     <license>
@@ -25,14 +25,14 @@
       <name>Unii Team</name>
       <email>dev@getunii.com</email>
       <organization>Unii</organization>
-      <organizationUrl>https://github.com/unii-founder</organizationUrl>
+      <organizationUrl>https://github.com/founder-unii</organizationUrl>
     </developer>
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/unii-founder/unii-client.git</connection>
-    <developerConnection>scm:git:ssh://github.com:unii-founder/unii-client.git</developerConnection>
-    <url>https://github.com/unii-founder/unii-client</url>
+    <connection>scm:git:git://github.com/founder-unii/unii-client.git</connection>
+    <developerConnection>scm:git:ssh://github.com:founder-unii/unii-client.git</developerConnection>
+    <url>https://github.com/founder-unii/unii-client</url>
   </scm>
 
   <dependencies>

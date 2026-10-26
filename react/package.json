@@ -24,12 +24,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/unii-founder/unii-client.git",
+    "url": "https://github.com/founder-unii/unii-client.git",
     "directory": "react"
   },
-  "homepage": "https://github.com/unii-founder/unii-client#readme",
+  "homepage": "https://github.com/founder-unii/unii-client#readme",
   "bugs": {
-    "url": "https://github.com/unii-founder/unii-client/issues"
+    "url": "https://github.com/founder-unii/unii-client/issues"
   },
   "keywords": [
     "unii",

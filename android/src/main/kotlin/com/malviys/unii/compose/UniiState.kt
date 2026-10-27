@@ -6,6 +6,7 @@ import com.malviys.unii.FrontendToolDefinition
 import com.malviys.unii.ToolCall
 import com.malviys.unii.ToolCallFunction
 import com.malviys.unii.UniiClient
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,15 @@ class UniiState(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<Throwable?>(null)
+    val error: StateFlow<Throwable?> = _error.asStateFlow()
+    private var failedMessages: List<ChatMessage>? = null
+
+    fun retryLastMessage() {
+        if (_isLoading.value) return
+        failedMessages?.let { completeMessage(it) }
+    }
 
     fun registerAction(config: UniiActionConfig) {
         actions[config.name] = config
@@ -72,10 +82,16 @@ class UniiState(
         if (content.isBlank() || _isLoading.value) return
         val userMsg = ChatMessage.user(content.trim())
         val currentList = _messages.value + userMsg
+        completeMessage(currentList)
+    }
+
+    private fun completeMessage(currentList: List<ChatMessage>) {
         _messages.value = currentList
+        _isLoading.value = true
+        _error.value = null
+        failedMessages = null
 
         coroutineScope.launch {
-            _isLoading.value = true
             try {
                 val tools = getActiveTools()
                 val req = ChatCompletionRequest(
@@ -138,6 +154,15 @@ class UniiState(
                             }
                         }
                     }
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                failedMessages = currentList
+                _error.value = failure
+                val lastMessage = _messages.value.lastOrNull()
+                if (lastMessage?.role == "assistant" && lastMessage.content.isBlank() && lastMessage.toolCalls.isNullOrEmpty()) {
+                    _messages.value = currentList
                 }
             } finally {
                 _isLoading.value = false

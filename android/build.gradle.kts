@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library") version "9.0.0"
+    id("com.android.library") version "9.1.1"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
     `maven-publish`
@@ -66,6 +66,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
+    testImplementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 }

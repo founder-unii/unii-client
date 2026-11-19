@@ -73,40 +73,13 @@ export function UniiProvider({
         );
       }
 
-      // 1. onBeforeExecute lifecycle
-      if (action.onBeforeExecute) {
-        const canProceed = await action.onBeforeExecute(args);
+      let result: any = null;
 
-        if (canProceed === false) {
-          return null; // Execution cancelled by user hook
-        }
+      if (onActionExecute) {
+        onActionExecute(name, args, result);
       }
 
-      try {
-        // 2. Main handler callback
-        let result: any = null;
-
-        if (action.handler) {
-          result = await action.handler(args);
-        }
-
-        // 3. onAfterExecute lifecycle
-        if (action.onAfterExecute) {
-          action.onAfterExecute(result, args);
-        }
-
-        if (onActionExecute) {
-          onActionExecute(name, args, result);
-        }
-
-        return result;
-      } catch (err: any) {
-        // 4. onError lifecycle
-        if (action.onError) {
-          action.onError(err, args);
-        }
-        throw err;
-      }
+      return result;
     },
     [onActionExecute],
   );

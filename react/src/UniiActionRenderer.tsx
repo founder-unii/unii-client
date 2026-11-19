@@ -57,20 +57,9 @@ export function UniiActionRenderer({
     execute,
   };
 
-  // 1. Custom React Component
-  if (action?.component) {
-    const Component = action.component;
-
-    return <Component {...renderProps} />;
-  }
-
-  // 2. Custom render function
-  if (action?.render) {
+  if (action) {
     return <>{action.render(renderProps)}</>;
   }
-
-  // 3. Fallback default button card
-  const ActionIcon = action?.icon;
 
   return (
     <div
@@ -85,32 +74,6 @@ export function UniiActionRenderer({
       <div style={{ fontSize: "12px", fontWeight: 600, color: "#6366f1" }}>
         Action: {actionName}
       </div>
-      <button
-        type="button"
-        disabled={status === "executing"}
-        onClick={() => execute()}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-          marginTop: "8px",
-          padding: "6px 14px",
-          borderRadius: "6px",
-          backgroundColor: "#4f46e5",
-          color: "#ffffff",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "12px",
-          fontWeight: 500,
-        }}
-      >
-        {ActionIcon && <ActionIcon data-icon="inline-start" />}
-        {status === "executing"
-          ? "Processing..."
-          : status === "complete"
-            ? "Completed"
-            : `Run ${actionName}`}
-      </button>
     </div>
   );
 }

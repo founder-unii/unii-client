@@ -2,28 +2,28 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-M2_DIR="$HOME/.m2/repository/io/github/dev-unii/unii-kotlin/0.1.0"
+M2_DIR="$HOME/.m2/repository/io/github/dev-unii/unii-kotlin/0.1.1"
 
-if [ ! -d "$M2_DIR" ] || [ ! -f "$M2_DIR/unii-kotlin-0.1.0.jar" ]; then
+if [ ! -d "$M2_DIR" ] || [ ! -f "$M2_DIR/unii-kotlin-0.1.1.jar" ]; then
     echo "==> Building and publishing to Maven Local..."
     "$DIR/gradlew" -p "$DIR" publishToMavenLocal
 fi
 
-TMP_DIR="/tmp/central-bundle-kotlin/io/github/dev-unii/unii-kotlin/0.1.0"
+TMP_DIR="/tmp/central-bundle-kotlin/io/github/dev-unii/unii-kotlin/0.1.1"
 rm -rf /tmp/central-bundle-kotlin
 mkdir -p "$TMP_DIR"
 
 echo "==> Copying JARs, POM, and metadata..."
-cp "$M2_DIR/unii-kotlin-0.1.0.jar" "$TMP_DIR/"
-cp "$M2_DIR/unii-kotlin-0.1.0.pom" "$TMP_DIR/"
-if [ -f "$M2_DIR/unii-kotlin-0.1.0-sources.jar" ]; then
-    cp "$M2_DIR/unii-kotlin-0.1.0-sources.jar" "$TMP_DIR/"
+cp "$M2_DIR/unii-kotlin-0.1.1.jar" "$TMP_DIR/"
+cp "$M2_DIR/unii-kotlin-0.1.1.pom" "$TMP_DIR/"
+if [ -f "$M2_DIR/unii-kotlin-0.1.1-sources.jar" ]; then
+    cp "$M2_DIR/unii-kotlin-0.1.1-sources.jar" "$TMP_DIR/"
 fi
-if [ -f "$M2_DIR/unii-kotlin-0.1.0-javadoc.jar" ]; then
-    cp "$M2_DIR/unii-kotlin-0.1.0-javadoc.jar" "$TMP_DIR/"
+if [ -f "$M2_DIR/unii-kotlin-0.1.1-javadoc.jar" ]; then
+    cp "$M2_DIR/unii-kotlin-0.1.1-javadoc.jar" "$TMP_DIR/"
 fi
-if [ -f "$M2_DIR/unii-kotlin-0.1.0.module" ]; then
-    cp "$M2_DIR/unii-kotlin-0.1.0.module" "$TMP_DIR/"
+if [ -f "$M2_DIR/unii-kotlin-0.1.1.module" ]; then
+    cp "$M2_DIR/unii-kotlin-0.1.1.module" "$TMP_DIR/"
 fi
 
 cd "$TMP_DIR"
@@ -37,7 +37,7 @@ for f in $(ls); do
     md5 -q "$f.asc" > "$f.asc.md5"
 done
 
-BUNDLE_ZIP="$DIR/bundle-unii-kotlin-0.1.0.zip"
+BUNDLE_ZIP="$DIR/bundle-unii-kotlin-0.1.1.zip"
 rm -f "$BUNDLE_ZIP"
 cd /tmp/central-bundle-kotlin
 zip -r "$BUNDLE_ZIP" io

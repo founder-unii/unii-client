@@ -8,8 +8,8 @@ Add to your `build.gradle.kts` (app module):
 
 ```kotlin
 dependencies {
-    implementation("io.github.dev-unii:unii-compose:0.1.0")
-    implementation("io.github.dev-unii:unii-kotlin:0.1.0")
+    implementation("io.github.dev-unii:unii-compose:0.1.1")
+    implementation("io.github.dev-unii:unii-kotlin:0.1.1")
 }
 ```
 

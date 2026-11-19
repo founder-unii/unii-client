@@ -4,7 +4,7 @@
 
   <groupId>io.github.dev-unii</groupId>
   <artifactId>unii-compose</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <packaging>aar</packaging>
 
   <name>unii-compose</name>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>io.github.dev-unii</groupId>
       <artifactId>unii-kotlin</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

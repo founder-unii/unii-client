@@ -3,244 +3,149 @@ import test from "node:test";
 
 import React from "react";
 
-import type { UniiActionConfig, UniiContextValue } from "./types.js";
+import type { FrontendToolDefinition } from "@unii/sdk";
 
-test("UniiAction execution flow: onBeforeExecute -> handler -> onAfterExecute", async () => {
-  const lifecycleEvents: string[] = [];
+import type { UniiActionConfig, UniiActionRenderProps } from "./types.js";
 
-  const action: UniiActionConfig = {
-    name: "test_action",
-    description: "Test description",
-    onBeforeExecute: (args) => {
-      lifecycleEvents.push(`beforeExecute:${args.step}`);
+test("UniiAction registration and deregistration on screen navigation", () => {
+  const registeredActions = new Map<string, UniiActionConfig>();
 
-      return true;
-    },
-    handler: async (args) => {
-      lifecycleEvents.push(`handler:${args.step}`);
-
-      return { status: "ok", step: args.step };
-    },
-    onAfterExecute: (result, args) => {
-      lifecycleEvents.push(`afterExecute:${result.status}:${args.step}`);
-    },
+  const registerAction = (config: UniiActionConfig) => {
+    registeredActions.set(config.name, config);
   };
 
-  const actions = new Map<string, UniiActionConfig>();
-
-  actions.set(action.name, action);
-
-  const executeAction = async (name: string, args: any) => {
-    const act = actions.get(name);
-
-    if (!act) {
-      throw new Error("Not found");
-    }
-    if (act.onBeforeExecute) {
-      const ok = await act.onBeforeExecute(args);
-
-      if (ok === false) {
-        return null;
-      }
-    }
-    const res = await act.handler!(args);
-
-    if (act.onAfterExecute) {
-      act.onAfterExecute(res, args);
-    }
-
-    return res;
-  };
-
-  const result = await executeAction("test_action", { step: 1 });
-
-  assert.deepEqual(result, { status: "ok", step: 1 });
-  assert.deepEqual(lifecycleEvents, [
-    "beforeExecute:1",
-    "handler:1",
-    "afterExecute:ok:1",
-  ]);
-});
-
-test("onBeforeExecute returning false cancels handler execution", async () => {
-  let handlerCalled = false;
-
-  const action: UniiActionConfig = {
-    name: "guarded_action",
-    description: "Guard test",
-    onBeforeExecute: () => {
-      return false; // Cancel execution
-    },
-    handler: () => {
-      handlerCalled = true;
-
-      return "done";
-    },
-  };
-
-  const actions = new Map<string, UniiActionConfig>();
-
-  actions.set(action.name, action);
-
-  const executeAction = async (name: string, args: any) => {
-    const act = actions.get(name);
-
-    if (!act) {
-      throw new Error("Not found");
-    }
-    if (act.onBeforeExecute) {
-      const ok = await act.onBeforeExecute(args);
-
-      if (ok === false) {
-        return null;
-      }
-    }
-
-    return await act.handler!(args);
-  };
-
-  const result = await executeAction("guarded_action", {});
-
-  assert.equal(result, null);
-  assert.equal(handlerCalled, false);
-});
-
-test("onError lifecycle catches handler failures", async () => {
-  let errorCaught: string | null = null;
-
-  const action: UniiActionConfig = {
-    name: "failing_action",
-    description: "Fail test",
-    handler: () => {
-      throw new Error("Simulated API failure");
-    },
-    onError: (err) => {
-      errorCaught = err.message;
-    },
-  };
-
-  const actions = new Map<string, UniiActionConfig>();
-
-  actions.set(action.name, action);
-
-  const executeAction = async (name: string, args: any) => {
-    const act = actions.get(name);
-
-    if (!act) {
-      throw new Error("Not found");
-    }
-    try {
-      return await act.handler!(args);
-    } catch (err: any) {
-      act.onError?.(err, args);
-      throw err;
-    }
-  };
-
-  await assert.rejects(
-    async () => await executeAction("failing_action", {}),
-    /Simulated API failure/,
-  );
-  assert.equal(errorCaught, "Simulated API failure");
-});
-
-test("Screen mount and unmount lifecycles properly register and deregister tools", () => {
-  const mountEvents: string[] = [];
-  const registeredTools = new Map<string, UniiActionConfig>();
-
-  const simulateComponentMount = (config: UniiActionConfig) => {
-    // onBeforeMount
-    config.onBeforeMount?.();
-    // register
-    registeredTools.set(config.name, config);
-    // onAfterMount
-    config.onAfterMount?.();
-
-    // return unmount function
-    return () => {
-      // onBeforeUnmount
-      config.onBeforeUnmount?.();
-      // unregister
-      registeredTools.delete(config.name);
-      // onAfterUnmount
-      config.onAfterUnmount?.();
-    };
+  const unregisterAction = (name: string) => {
+    registeredActions.delete(name);
   };
 
   const pricingAction: UniiActionConfig = {
     name: "open_signup",
     description: "Signup modal on pricing page",
-    onBeforeMount: () => mountEvents.push("beforeMount:pricing"),
-    onAfterMount: () => mountEvents.push("afterMount:pricing"),
-    onBeforeUnmount: () => mountEvents.push("beforeUnmount:pricing"),
-    onAfterUnmount: () => mountEvents.push("afterUnmount:pricing"),
+    parameters: {
+      type: "object",
+      properties: { plan: { type: "string" } },
+      required: ["plan"],
+    },
+    render: (props) => {
+      return React.createElement("div", null, `Signup for ${props.args.plan}`);
+    },
   };
 
   // 1. User visits /pricing
-  const unmount = simulateComponentMount(pricingAction);
+  registerAction(pricingAction);
+  assert.equal(registeredActions.has("open_signup"), true);
+  assert.equal(registeredActions.get("open_signup")?.description, "Signup modal on pricing page");
 
-  assert.equal(registeredTools.has("open_signup"), true);
-  assert.deepEqual(mountEvents, ["beforeMount:pricing", "afterMount:pricing"]);
+  // 2. User navigates away from /pricing
+  unregisterAction(pricingAction.name);
+  assert.equal(registeredActions.has("open_signup"), false);
+});
 
-  // 2. User leaves /pricing for /dashboard
-  unmount();
-  assert.equal(registeredTools.has("open_signup"), false);
-  assert.deepEqual(mountEvents, [
-    "beforeMount:pricing",
-    "afterMount:pricing",
-    "beforeUnmount:pricing",
-    "afterUnmount:pricing",
-  ]);
+test("UniiAction generates FrontendToolDefinition with name, description, and parameters", () => {
+  const actions = new Map<string, UniiActionConfig>();
+
+  const checkoutAction: UniiActionConfig = {
+    name: "checkout_cart",
+    description: "Processes checkout with cart items",
+    parameters: {
+      type: "object",
+      properties: {
+        cartId: { type: "string" },
+        currency: { type: "string" },
+      },
+      required: ["cartId"],
+    },
+    render: (props) => React.createElement("div", null, `Checkout ${props.args.cartId}`),
+  };
+
+  actions.set(checkoutAction.name, checkoutAction);
+
+  const getActiveTools = (): FrontendToolDefinition[] => {
+    return Array.from(actions.values()).map((action) => ({
+      name: action.name,
+      description: action.description,
+      parameters: action.parameters || { type: "object" },
+    }));
+  };
+
+  const tools = getActiveTools();
+  assert.equal(tools.length, 1);
+  assert.deepEqual(tools[0], {
+    name: "checkout_cart",
+    description: "Processes checkout with cart items",
+    parameters: {
+      type: "object",
+      properties: {
+        cartId: { type: "string" },
+        currency: { type: "string" },
+      },
+      required: ["cartId"],
+    },
+  });
 });
 
 test("Generative UI render prop provides execution controls and arguments", () => {
   let renderedOutput = "";
+  let executedWithArgs: any = null;
 
-  const action: UniiActionConfig = {
+  const action: UniiActionConfig<{ plan: string }> = {
     name: "card_action",
-    description: "Renders card",
+    description: "Renders subscription card",
     render: (props) => {
       renderedOutput = `Card for ${props.args.plan} - Status: ${props.status}`;
-
       return null;
     },
   };
 
-  action.render!({
+  const renderProps: UniiActionRenderProps<{ plan: string }> = {
     args: { plan: "pro" },
     status: "idle",
-    execute: async () => {},
-  });
+    execute: async (overrideArgs) => {
+      executedWithArgs = overrideArgs;
+      return undefined as any;
+    },
+  };
+
+  action.render(renderProps);
 
   assert.equal(renderedOutput, "Card for pro - Status: idle");
+
+  renderProps.execute({ plan: "enterprise" });
+  assert.deepEqual(executedWithArgs, { plan: "enterprise" });
 });
 
-test("Action icon is passed as component object and receives data-icon (shadcn rules)", () => {
-  let capturedDataIcon: string | undefined;
+test("executeAction triggers provider onActionExecute listener", async () => {
+  let notifiedAction: string | null = null;
+  let notifiedArgs: any = null;
 
-  const MockCheckIcon: React.ComponentType<{ "data-icon"?: string }> = (
-    props,
-  ) => {
-    capturedDataIcon = props["data-icon"];
+  const actions = new Map<string, UniiActionConfig>();
 
-    return React.createElement("svg", props);
+  const testAction: UniiActionConfig = {
+    name: "show_alert",
+    description: "Shows an alert to the user",
+    render: () => null,
   };
 
-  const action: UniiActionConfig = {
-    name: "icon_action",
-    description: "Icon test",
-    icon: MockCheckIcon, // Passed as component object, NOT string key
+  actions.set(testAction.name, testAction);
+
+  const onActionExecute = (name: string, args: any, result: any) => {
+    notifiedAction = name;
+    notifiedArgs = args;
   };
 
-  assert.equal(action.icon, MockCheckIcon);
+  const executeAction = async (name: string, args: any) => {
+    const act = actions.get(name);
+    if (!act) {
+      throw new Error(`Action "${name}" is not registered on current screen.`);
+    }
+    onActionExecute(name, args, null);
+    return null;
+  };
 
-  // When rendered inside button, receives data-icon="inline-start" without sizing classes
-  const element = React.createElement(action.icon!, {
-    "data-icon": "inline-start",
-  });
+  await executeAction("show_alert", { message: "Welcome!" });
 
-  assert.equal(element.props["data-icon"], "inline-start");
-  assert.equal((element.props as any).className, undefined); // No sizing classes
+  assert.equal(notifiedAction, "show_alert");
+  assert.deepEqual(notifiedArgs, { message: "Welcome!" });
 });
 
 test("UniiProvider streams chat response chunks and triggers tool call upon completion", async () => {
@@ -278,17 +183,6 @@ test("UniiProvider streams chat response chunks and triggers tool call upon comp
     },
   ];
 
-  let actionExecutedWith: any = null;
-  const mockAction: UniiActionConfig = {
-    name: "open_modal",
-    description: "Opens view modal",
-    handler: (args) => {
-      actionExecutedWith = args;
-
-      return { success: true };
-    },
-  };
-
   let accumulatedContent = "";
   const accumulatedToolCalls: any[] = [];
   const stateUpdates: string[] = [];
@@ -305,13 +199,9 @@ test("UniiProvider streams chat response chunks and triggers tool call upon comp
     stateUpdates.push(accumulatedContent);
   }
 
-  if (accumulatedToolCalls.length > 0 && mockAction.handler) {
-    const args = JSON.parse(accumulatedToolCalls[0].function.arguments);
-
-    await mockAction.handler(args);
-  }
-
   assert.equal(accumulatedContent, "Hello there!");
   assert.deepEqual(stateUpdates, ["Hello ", "Hello there!", "Hello there!"]);
-  assert.deepEqual(actionExecutedWith, { view: "pricing" });
+  assert.equal(accumulatedToolCalls.length, 1);
+  assert.equal(accumulatedToolCalls[0].function.name, "open_modal");
+  assert.deepEqual(JSON.parse(accumulatedToolCalls[0].function.arguments), { view: "pricing" });
 });

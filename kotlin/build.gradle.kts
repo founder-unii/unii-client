@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.dev-unii"
-version = "0.1.0"
+version = "0.1.1"
 
 repositories {
     mavenCentral()
@@ -37,7 +37,7 @@ publishing {
             from(components["java"])
             groupId = "io.github.dev-unii"
             artifactId = "unii-kotlin"
-            version = "0.1.0"
+            version = "0.1.1"
 
             pom {
                 name.set("unii-kotlin")

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.dev-unii"
-version = "0.1.0"
+version = "0.1.1"
 
 kotlin {
     jvmToolchain(17)
@@ -44,12 +44,13 @@ android {
     publishing {
         singleVariant("release") {
             withSourcesJar()
+            withJavadocJar()
         }
     }
 }
 
 dependencies {
-    api("io.github.dev-unii:unii-kotlin:0.1.0")
+    api("io.github.dev-unii:unii-kotlin:0.1.1")
 
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
@@ -78,7 +79,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "io.github.dev-unii"
                 artifactId = "unii-compose"
-                version = "0.1.0"
+                version = "0.1.1"
 
                 pom {
                     name.set("unii-compose")

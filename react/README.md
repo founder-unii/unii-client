@@ -39,8 +39,12 @@ export function OrderComponent() {
   useUniiAction({
     name: "confirm_order",
     description: "Confirms order details for the user",
-    handler: async (args) => {
-      return { success: true, orderId: args.orderId };
+    parameters: {
+      type: "object",
+      properties: {
+        orderId: { type: "string" },
+      },
+      required: ["orderId"],
     },
     render: ({ args, status, execute }) => (
       <div className="p-4 border rounded">

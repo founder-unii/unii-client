@@ -43,7 +43,7 @@ class UniiClient(
         return Request.Builder()
             .url("$baseUrl$path")
             .header("Authorization", "Bearer $apiKey")
-            .header("User-Agent", "unii-kotlin-sdk/0.1.0")
+            .header("User-Agent", "unii-kotlin-sdk/0.1.1")
     }
 
     suspend fun verifyAuth(): AuthVerificationResponse = suspendCancellableCoroutine { continuation ->

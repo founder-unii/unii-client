@@ -1,21 +1,8 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import type { ChatMessage, FrontendToolDefinition, ToolCall } from "@unii/sdk";
 
 export type ActionStatus = "idle" | "executing" | "complete" | "error";
-
-export interface UniiActionLifecycle<TArgs = any, TResult = any> {
-  // Mounting & screen lifecycles
-  onBeforeMount?: () => void;
-  onAfterMount?: () => void;
-  onBeforeUnmount?: () => void;
-  onAfterUnmount?: () => void;
-
-  // Execution lifecycles
-  onBeforeExecute?: (args: TArgs) => boolean | void | Promise<boolean | void>;
-  onAfterExecute?: (result: TResult, args: TArgs) => void;
-  onError?: (error: Error, args: TArgs) => void;
-}
 
 export interface UniiActionRenderProps<TArgs = any, TResult = any> {
   args: TArgs;
@@ -25,23 +12,11 @@ export interface UniiActionRenderProps<TArgs = any, TResult = any> {
   execute: (overrideArgs?: Partial<TArgs>) => Promise<TResult>;
 }
 
-export interface UniiActionConfig<
-  TArgs = any,
-  TResult = any,
-> extends UniiActionLifecycle<TArgs, TResult> {
+export interface UniiActionConfig<TArgs = any, TResult = any> {
   name: string;
   description: string;
   parameters?: Record<string, any>;
-
-  // Icon component passed directly (no string keys, receives data-icon)
-  icon?: ComponentType<{ "data-icon"?: string }>;
-
-  // Execution callback
-  handler?: (args: TArgs) => Promise<TResult> | TResult;
-
-  // Custom UI Component or render function
-  component?: ComponentType<UniiActionRenderProps<TArgs, TResult>>;
-  render?: (props: UniiActionRenderProps<TArgs, TResult>) => ReactNode;
+  render: (props: UniiActionRenderProps<TArgs, TResult>) => ReactNode;
 }
 
 export interface UniiContextValue {

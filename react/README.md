@@ -39,11 +39,15 @@ export function OrderComponent() {
   useUniiAction({
     name: "confirm_order",
     description: "Confirms order details for the user",
+    parameters: {
+      type: "object",
+      properties: {
+        orderId: { type: "string" },
+      },
+      required: ["orderId"],
+    },
     // Require Human-in-the-Loop (HITL) approval before executing
     requiresApproval: true,
-    handler: async (args) => {
-      return { success: true, orderId: args.orderId };
-    },
     render: ({ args, status, execute, reject }) => (
       <div className="p-4 border rounded">
         <h4>Confirm Order #{args.orderId}</h4>

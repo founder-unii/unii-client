@@ -1,6 +1,6 @@
 {
   "name": "@unii/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Official TypeScript SDK for Unii API",
   "license": "MIT",
   "author": "Unii Team <dev@getunii.com>",

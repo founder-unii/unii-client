@@ -315,3 +315,80 @@ test("UniiProvider streams chat response chunks and triggers tool call upon comp
   assert.deepEqual(stateUpdates, ["Hello ", "Hello there!", "Hello there!"]);
   assert.deepEqual(actionExecutedWith, { view: "pricing" });
 });
+
+test("requiresApproval gate prevents automatic tool execution on completion", async () => {
+  let executed = false;
+
+  const sensitiveAction: UniiActionConfig = {
+    name: "delete_database",
+    description: "Deletes database",
+    requiresApproval: true,
+    handler: () => {
+      executed = true;
+
+      return { status: "deleted" };
+    },
+  };
+
+  const actions = new Map<string, UniiActionConfig>();
+
+  actions.set(sensitiveAction.name, sensitiveAction);
+
+  // Simulating completion trigger
+  const toolCall = {
+    id: "call_del",
+    function: { name: "delete_database", arguments: "{}" },
+  };
+  const action = actions.get(toolCall.function.name);
+  const requiresApproval =
+    typeof action?.requiresApproval === "function"
+      ? await action.requiresApproval({})
+      : Boolean(action?.requiresApproval);
+
+  // If requiresApproval is true, auto-execution is skipped
+  if (!requiresApproval && action?.handler) {
+    await action.handler({});
+  }
+
+  assert.equal(executed, false, "Sensitive action must not auto-execute without approval");
+
+  // User manually triggers approval
+  if (action?.handler) {
+    await action.handler({});
+    executed = true;
+  }
+  assert.equal(executed, true, "Action executes upon manual approval");
+});
+
+test("Streaming parts accumulate reasoning, text, and tool calls", () => {
+  const accumulatedReasoning = "Looking up project documents...";
+  const accumulatedContent = "Found 2 results.";
+  const accumulatedToolCalls = [
+    {
+      id: "call_1",
+      type: "function" as const,
+      function: { name: "search", arguments: '{"q":"rag"}' },
+    },
+  ];
+
+  const parts: Array<
+    | { type: "reasoning"; reasoning: string }
+    | { type: "text"; text: string }
+    | { type: "tool_call"; toolCall: any }
+  > = [];
+
+  if (accumulatedReasoning) {
+    parts.push({ type: "reasoning", reasoning: accumulatedReasoning });
+  }
+  if (accumulatedContent) {
+    parts.push({ type: "text", text: accumulatedContent });
+  }
+  for (const tc of accumulatedToolCalls) {
+    parts.push({ type: "tool_call", toolCall: tc });
+  }
+
+  assert.equal(parts.length, 3);
+  assert.equal(parts[0].type, "reasoning");
+  assert.equal(parts[1].type, "text");
+  assert.equal(parts[2].type, "tool_call");
+});

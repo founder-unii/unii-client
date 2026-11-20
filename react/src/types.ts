@@ -1,8 +1,20 @@
 import type { ComponentType, ReactNode } from "react";
 
-import type { ChatMessage, FrontendToolDefinition, ToolCall } from "@unii/sdk";
+import type {
+  ChatMessage,
+  FrontendToolDefinition,
+  ToolCall,
+  UniiMessagePart,
+} from "@unii/sdk";
 
-export type ActionStatus = "idle" | "executing" | "complete" | "error";
+export type { UniiMessagePart };
+
+export type ActionStatus =
+  | "idle"
+  | "pending_approval"
+  | "executing"
+  | "complete"
+  | "error";
 
 export interface UniiActionLifecycle<TArgs = any, TResult = any> {
   // Mounting & screen lifecycles
@@ -23,6 +35,7 @@ export interface UniiActionRenderProps<TArgs = any, TResult = any> {
   status: ActionStatus;
   error?: Error;
   execute: (overrideArgs?: Partial<TArgs>) => Promise<TResult>;
+  reject?: () => void;
 }
 
 export interface UniiActionConfig<
@@ -32,6 +45,9 @@ export interface UniiActionConfig<
   name: string;
   description: string;
   parameters?: Record<string, any>;
+
+  // Human-in-the-loop approval gate
+  requiresApproval?: boolean | ((args: TArgs) => boolean | Promise<boolean>);
 
   // Icon component passed directly (no string keys, receives data-icon)
   icon?: ComponentType<{ "data-icon"?: string }>;

@@ -25,9 +25,16 @@ export interface FrontendToolDefinition {
 
 export type ChatRole = "system" | "user" | "assistant";
 
+export type UniiMessagePart =
+  | { type: "text"; text: string }
+  | { type: "reasoning"; reasoning: string; durationMs?: number }
+  | { type: "tool_call"; toolCall: ToolCall; status?: string }
+  | { type: "citation"; citation: ChatCompletionCitation };
+
 export interface ChatMessage {
   role: ChatRole | string;
   content: string;
+  parts?: UniiMessagePart[];
   tool_calls?: ToolCall[];
 }
 
@@ -66,6 +73,7 @@ export interface ChatCompletionResponse {
 export interface ChatCompletionChunkDelta {
   role?: string;
   content?: string;
+  reasoning?: string;
   tool_calls?: ToolCall[];
 }
 

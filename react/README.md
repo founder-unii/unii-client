@@ -39,15 +39,28 @@ export function OrderComponent() {
   useUniiAction({
     name: "confirm_order",
     description: "Confirms order details for the user",
-    handler: async (args) => {
-      return { success: true, orderId: args.orderId };
+    parameters: {
+      type: "object",
+      properties: {
+        orderId: { type: "string" },
+      },
+      required: ["orderId"],
     },
-    render: ({ args, status, execute }) => (
+    // Require Human-in-the-Loop (HITL) approval before executing
+    requiresApproval: true,
+    render: ({ args, status, execute, reject }) => (
       <div className="p-4 border rounded">
         <h4>Confirm Order #{args.orderId}</h4>
-        <button onClick={() => execute()} disabled={status === "executing"}>
-          {status === "complete" ? "Confirmed!" : "Confirm"}
-        </button>
+        {status === "pending_approval" ? (
+          <div className="flex gap-2">
+            <button onClick={() => execute()}>Approve Order</button>
+            <button onClick={reject}>Reject</button>
+          </div>
+        ) : (
+          <button onClick={() => execute()} disabled={status === "executing"}>
+            {status === "complete" ? "Confirmed!" : "Confirm"}
+          </button>
+        )}
       </div>
     ),
   });
@@ -68,8 +81,26 @@ export function Chat() {
     <div>
       {messages.map((m, i) => (
         <div key={i}>
-          <p>{m.content}</p>
-          {m.tool_calls?.map((tc) => (
+          {/* Structured streaming parts: text, reasoning, tool_call, citation */}
+          {m.parts ? (
+            m.parts.map((part, pIdx) => {
+              if (part.type === "reasoning") {
+                return <blockquote key={pIdx} className="text-muted text-xs italic">{part.reasoning}</blockquote>;
+              }
+              if (part.type === "text") {
+                return <p key={pIdx}>{part.text}</p>;
+              }
+              if (part.type === "tool_call") {
+                return <UniiActionRenderer key={part.toolCall.id} toolCall={part.toolCall} />;
+              }
+              return null;
+            })
+          ) : (
+            <p>{m.content}</p>
+          )}
+
+          {/* Fallback for standard tool calls */}
+          {!m.parts && m.tool_calls?.map((tc) => (
             <UniiActionRenderer key={tc.id} toolCall={tc} />
           ))}
         </div>
@@ -78,6 +109,15 @@ export function Chat() {
   );
 }
 ```
+
+### 4. Integration with shadcn AI Elements
+
+`@unii/react` works seamlessly with [shadcn AI Elements](https://ui.shadcn.com/docs/ai-elements):
+
+- **`MessageScroller`**: Wrap message history with `<MessageScroller>` and `<MessageScrollerViewport>` for auto-scroll locking and scroll-to-bottom actions.
+- **`Message` & `Bubble`**: Style user and assistant message turns using `<Message align="start" | "end">` and `<Bubble variant="default" | "secondary">`.
+- **`Trace`**: Render execution steps and reasoning logs using `<Trace>` and `<TraceCollapsible>`.
+- **`Confirmation`**: Use interactive approval cards for actions with `requiresApproval: true`.
 
 ## License
 

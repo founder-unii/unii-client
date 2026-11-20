@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.*
@@ -13,6 +14,7 @@ import okhttp3.sse.EventSource
 import okhttp3.sse.EventSourceListener
 import okhttp3.sse.EventSources
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -20,7 +22,9 @@ class UniiClient(
     private val apiKey: String,
     baseUrl: String = "http://localhost:8080",
     private val defaultProjectId: String? = null,
-    private val okHttpClient: OkHttpClient = OkHttpClient()
+    private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+        .readTimeout(60, TimeUnit.SECONDS)
+        .build()
 ) {
     init {
         require(apiKey.isNotBlank()) { "apiKey cannot be blank" }
@@ -28,9 +32,11 @@ class UniiClient(
 
     val baseUrl: String = baseUrl.trimEnd('/')
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        explicitNulls = false
     }
 
     private fun requestBuilder(path: String): Request.Builder {
@@ -121,7 +127,7 @@ class UniiClient(
         )
         val jsonBody = json.encodeToString(payload)
         val req = requestBuilder("/api/v1/chat/completions")
-            .header("Accept", "text/event-stream")
+            .header("Accept", "text/event-stream, application/json")
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 
@@ -142,7 +148,11 @@ class UniiClient(
 
             override fun onFailure(eventSource: EventSource, t: Throwable?, response: Response?) {
                 val err = if (response != null && !response.isSuccessful) {
-                    UniiApiException(response.code, "Stream failed: ${response.message}")
+                    UniiApiException(
+                        response.code,
+                        "Stream failed: ${response.message}",
+                        runCatching { response.body?.string() }.getOrNull()
+                    )
                 } else {
                     t ?: RuntimeException("SSE stream failed")
                 }

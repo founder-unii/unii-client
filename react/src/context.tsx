@@ -12,6 +12,7 @@ import type {
   FrontendToolDefinition,
   ToolCall,
   UniiClient,
+  UniiMessagePart,
 } from "@unii/sdk";
 
 import type { UniiActionConfig, UniiContextValue } from "./types.js";
@@ -73,40 +74,13 @@ export function UniiProvider({
         );
       }
 
-      // 1. onBeforeExecute lifecycle
-      if (action.onBeforeExecute) {
-        const canProceed = await action.onBeforeExecute(args);
+      let result: any = null;
 
-        if (canProceed === false) {
-          return null; // Execution cancelled by user hook
-        }
+      if (onActionExecute) {
+        onActionExecute(name, args, result);
       }
 
-      try {
-        // 2. Main handler callback
-        let result: any = null;
-
-        if (action.handler) {
-          result = await action.handler(args);
-        }
-
-        // 3. onAfterExecute lifecycle
-        if (action.onAfterExecute) {
-          action.onAfterExecute(result, args);
-        }
-
-        if (onActionExecute) {
-          onActionExecute(name, args, result);
-        }
-
-        return result;
-      } catch (err: any) {
-        // 4. onError lifecycle
-        if (action.onError) {
-          action.onError(err, args);
-        }
-        throw err;
-      }
+      return result;
     },
     [onActionExecute],
   );
@@ -132,10 +106,14 @@ export function UniiProvider({
 
         if (stream) {
           let accumulatedContent = "";
+          let accumulatedReasoning = "";
           const accumulatedToolCalls: ToolCall[] = [];
 
           // Initialize streaming message placeholder
-          setMessages([...nextMessages, { role: "assistant", content: "" }]);
+          setMessages([
+            ...nextMessages,
+            { role: "assistant", content: "", parts: [] },
+          ]);
 
           for await (const chunk of client.streamChatCompletion(
             requestPayload,
@@ -150,6 +128,10 @@ export function UniiProvider({
 
             if (delta?.content) {
               accumulatedContent += delta.content;
+            }
+
+            if (delta?.reasoning) {
+              accumulatedReasoning += delta.reasoning;
             }
 
             if (delta?.tool_calls && delta.tool_calls.length > 0) {
@@ -184,11 +166,24 @@ export function UniiProvider({
               }
             }
 
+            const parts: UniiMessagePart[] = [];
+
+            if (accumulatedReasoning) {
+              parts.push({ type: "reasoning", reasoning: accumulatedReasoning });
+            }
+            if (accumulatedContent) {
+              parts.push({ type: "text", text: accumulatedContent });
+            }
+            for (const tc of accumulatedToolCalls) {
+              parts.push({ type: "tool_call", toolCall: tc });
+            }
+
             setMessages([
               ...nextMessages,
               {
                 role: "assistant",
                 content: accumulatedContent,
+                parts: parts.length > 0 ? parts : undefined,
                 tool_calls:
                   accumulatedToolCalls.length > 0
                     ? [...accumulatedToolCalls]
@@ -210,7 +205,15 @@ export function UniiProvider({
               }
 
               if (toolName && actionsRef.current.has(toolName)) {
-                await executeAction(toolName, parsedArgs);
+                const action = actionsRef.current.get(toolName);
+                const requiresApproval =
+                  typeof action?.requiresApproval === "function"
+                    ? await action.requiresApproval(parsedArgs)
+                    : Boolean(action?.requiresApproval);
+
+                if (!requiresApproval) {
+                  await executeAction(toolName, parsedArgs);
+                }
               }
             }
           }
@@ -220,8 +223,27 @@ export function UniiProvider({
 
           if (choice?.message) {
             const assistantMsg = choice.message;
+            const parts: UniiMessagePart[] = [];
 
-            setMessages([...nextMessages, assistantMsg]);
+            if (assistantMsg.content) {
+              parts.push({ type: "text", text: assistantMsg.content });
+            }
+            if (response.citation) {
+              parts.push({ type: "citation", citation: response.citation });
+            }
+            if (assistantMsg.tool_calls) {
+              for (const tc of assistantMsg.tool_calls) {
+                parts.push({ type: "tool_call", toolCall: tc });
+              }
+            }
+
+            setMessages([
+              ...nextMessages,
+              {
+                ...assistantMsg,
+                parts: parts.length > 0 ? parts : undefined,
+              },
+            ]);
 
             if (assistantMsg.tool_calls && assistantMsg.tool_calls.length > 0) {
               for (const toolCall of assistantMsg.tool_calls) {
@@ -235,7 +257,15 @@ export function UniiProvider({
                 }
 
                 if (actionsRef.current.has(toolName)) {
-                  await executeAction(toolName, parsedArgs);
+                  const action = actionsRef.current.get(toolName);
+                  const requiresApproval =
+                    typeof action?.requiresApproval === "function"
+                      ? await action.requiresApproval(parsedArgs)
+                      : Boolean(action?.requiresApproval);
+
+                  if (!requiresApproval) {
+                    await executeAction(toolName, parsedArgs);
+                  }
                 }
               }
             }

@@ -3,9 +3,26 @@ import {
   ChatCompletionChunk,
   ChatCompletionRequest,
   ChatCompletionResponse,
+  ChatMessage,
   UniiApiError,
   UniiClientOptions,
 } from "./types.js";
+
+/**
+ * Strips tool_calls, parts, and extraneous metadata from chat history
+ * before passing messages back to the LLM completion API.
+ */
+export function sanitizeMessages(
+  messages?: ChatMessage[],
+): ChatMessage[] | undefined {
+  if (!messages || !Array.isArray(messages)) {
+    return messages;
+  }
+  return messages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+}
 
 export class UniiClient {
   private readonly apiKey: string;
@@ -76,6 +93,9 @@ export class UniiClient {
     const url = `${this.baseUrl}/api/v1/chat/completions`;
     const payload = {
       ...request,
+      ...(request.messages
+        ? { messages: sanitizeMessages(request.messages) }
+        : {}),
       stream: false,
       projectId: request.projectId || this.projectId,
     };
@@ -101,6 +121,9 @@ export class UniiClient {
     const url = `${this.baseUrl}/api/v1/chat/completions`;
     const payload = {
       ...request,
+      ...(request.messages
+        ? { messages: sanitizeMessages(request.messages) }
+        : {}),
       stream: true,
       projectId: request.projectId || this.projectId,
     };

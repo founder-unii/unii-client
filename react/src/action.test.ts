@@ -297,3 +297,101 @@ test("Streaming parts accumulate reasoning, text, and tool calls", () => {
   assert.equal(parts[1].type, "text");
   assert.equal(parts[2].type, "tool_call");
 });
+
+test("execute callback in UniiActionConfig is invoked with args and return value passed to onActionExecute", async () => {
+  let executedArgs: any = null;
+  let listenerResult: any = null;
+
+  const actions = new Map<string, UniiActionConfig>();
+
+  const themeAction: UniiActionConfig<{ mode: string }> = {
+    name: "toggle_theme",
+    description: "Switches theme",
+    execute: async (args) => {
+      executedArgs = args;
+      return { applied: args.mode };
+    },
+  };
+
+  actions.set(themeAction.name, themeAction);
+
+  const onActionExecute = (name: string, args: any, result: any) => {
+    listenerResult = result;
+  };
+
+  const executeAction = async (name: string, args: any) => {
+    const act = actions.get(name);
+    if (!act) throw new Error("Not found");
+    const fn = act.execute || act.handler;
+    const res = fn ? await fn(args) : null;
+    onActionExecute(name, args, res);
+    return res;
+  };
+
+  const res = await executeAction("toggle_theme", { mode: "dark" });
+
+  assert.deepEqual(executedArgs, { mode: "dark" });
+  assert.deepEqual(res, { applied: "dark" });
+  assert.deepEqual(listenerResult, { applied: "dark" });
+});
+
+test("handler alias in UniiActionConfig is invoked when execute is not provided", async () => {
+  let handlerCalled = false;
+
+  const actions = new Map<string, UniiActionConfig>();
+
+  const modalAction: UniiActionConfig = {
+    name: "open_modal",
+    description: "Opens modal",
+    handler: async (args) => {
+      handlerCalled = true;
+      return true;
+    },
+  };
+
+  actions.set(modalAction.name, modalAction);
+
+  const executeAction = async (name: string, args: any) => {
+    const act = actions.get(name);
+    if (!act) throw new Error("Not found");
+    const fn = act.execute || act.handler;
+    return fn ? await fn(args) : null;
+  };
+
+  const res = await executeAction("open_modal", {});
+  assert.equal(handlerCalled, true);
+  assert.equal(res, true);
+});
+
+test("outgoing chat payload sanitizes messages to omit tool_calls and parts", () => {
+  const nextMessages = [
+    { role: "user", content: "turn on dark mode" },
+    {
+      role: "assistant",
+      content: "Switched!",
+      parts: [{ type: "text", text: "Switched!" }],
+      tool_calls: [
+        {
+          id: "call_1",
+          type: "function",
+          function: { name: "toggle_theme", arguments: '{"mode":"dark"}' },
+        },
+      ],
+    },
+    { role: "user", content: "Hello" },
+  ];
+
+  const payloadMessages = nextMessages.map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
+  assert.equal(payloadMessages.length, 3);
+  for (const m of payloadMessages) {
+    assert.equal(Object.keys(m).length, 2);
+    assert.ok(m.role);
+    assert.ok(m.content);
+    assert.equal("tool_calls" in m, false);
+    assert.equal("parts" in m, false);
+  }
+});

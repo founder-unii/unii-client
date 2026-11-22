@@ -76,6 +76,11 @@ export function UniiProvider({
 
       let result: any = null;
 
+      const fn = action.execute || action.handler;
+      if (fn) {
+        result = await fn(args);
+      }
+
       if (onActionExecute) {
         onActionExecute(name, args, result);
       }
@@ -99,8 +104,12 @@ export function UniiProvider({
 
       try {
         const activeTools = getActiveTools();
+        const payloadMessages: ChatMessage[] = nextMessages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
         const requestPayload = {
-          messages: nextMessages,
+          messages: payloadMessages,
           frontendTools: activeTools.length > 0 ? activeTools : undefined,
         };
 

@@ -1,2 +1,2 @@
-export { UniiClient } from "./client.js";
+export { UniiClient, sanitizeMessages } from "./client.js";
 export * from "./types.js";

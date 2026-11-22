@@ -21,8 +21,20 @@ export function useUniiAction<TArgs = any, TResult = any>(
       description: config.description,
       parameters: config.parameters,
       requiresApproval: config.requiresApproval,
-      render: (props: UniiActionRenderProps<TArgs, TResult>) =>
-        configRef.current.render(props),
+      execute: async (args: TArgs) => {
+        const fn = configRef.current.execute || configRef.current.handler;
+        if (fn) {
+          return await fn(args);
+        }
+        return undefined as any;
+      },
+      render: config.render
+        ? (props: UniiActionRenderProps<TArgs, TResult>) => {
+            return configRef.current.render
+              ? configRef.current.render(props)
+              : null;
+          }
+        : undefined,
     };
 
     registerAction(actionProxy);
@@ -35,6 +47,9 @@ export function useUniiAction<TArgs = any, TResult = any>(
     config.description,
     config.parameters,
     config.requiresApproval,
+    config.execute,
+    config.handler,
+    config.render,
     registerAction,
     unregisterAction,
   ]);

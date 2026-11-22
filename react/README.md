@@ -34,6 +34,30 @@ export function App({ children }: { children: React.ReactNode }) {
 
 ```tsx
 import { useUniiAction } from "@unii/react";
+import { useTheme } from "next-themes";
+
+export function ThemeComponent() {
+  const { setTheme } = useTheme();
+
+  useUniiAction({
+    name: "toggle_theme",
+    description: "Switches visual theme between light and dark",
+    parameters: {
+      type: "object",
+      properties: {
+        mode: { type: "string", enum: ["light", "dark", "system"] },
+      },
+      required: ["mode"],
+    },
+    // Direct execution callback
+    execute: async (args: { mode: string }) => {
+      setTheme(args.mode);
+      return { success: true, theme: args.mode };
+    },
+  });
+
+  return <div>Screen Content</div>;
+}
 
 export function OrderComponent() {
   useUniiAction({
@@ -46,8 +70,11 @@ export function OrderComponent() {
       },
       required: ["orderId"],
     },
-    // Require Human-in-the-Loop (HITL) approval before executing
+    // Optional Human-in-the-Loop (HITL) approval before executing
     requiresApproval: true,
+    execute: async ({ orderId }) => {
+      await api.confirmOrder(orderId);
+    },
     render: ({ args, status, execute, reject }) => (
       <div className="p-4 border rounded">
         <h4>Confirm Order #{args.orderId}</h4>

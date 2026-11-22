@@ -72,7 +72,7 @@ export function UniiActionRenderer({
     reject,
   };
 
-  if (action) {
+  if (action?.render) {
     return <>{action.render(renderProps)}</>;
   }
 

@@ -33,7 +33,11 @@ export interface UniiActionConfig<TArgs = any, TResult = any> {
   // Human-in-the-loop approval gate
   requiresApproval?: boolean | ((args: TArgs) => boolean | Promise<boolean>);
 
-  render: (props: UniiActionRenderProps<TArgs, TResult>) => ReactNode;
+  // Action execution callback
+  execute?: (args: TArgs) => TResult | Promise<TResult>;
+  handler?: (args: TArgs) => TResult | Promise<TResult>;
+
+  render?: (props: UniiActionRenderProps<TArgs, TResult>) => ReactNode;
 }
 
 export interface UniiContextValue {

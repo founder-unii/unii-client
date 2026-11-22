@@ -280,3 +280,102 @@ test("streamChatCompletion yields delta with tool_calls", async () => {
     "trigger_action",
   );
 });
+
+test("createChatCompletion strips tool_calls from history messages before sending payload", async () => {
+  let capturedBody = "";
+  const mockFetch = (async (_url: string, init?: RequestInit) => {
+    capturedBody = init?.body as string;
+    return new Response(
+      JSON.stringify({
+        id: "chatcmpl-test",
+        choices: [
+          {
+            index: 0,
+            message: { role: "assistant", content: "OK" },
+            finish_reason: "stop",
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }) as unknown as typeof globalThis.fetch;
+
+  const client = new UniiClient({ apiKey: "test-key", fetch: mockFetch });
+
+  await client.createChatCompletion({
+    messages: [
+      { role: "user", content: "turn on dark mode" },
+      {
+        role: "assistant",
+        content: "Switched theme!",
+        parts: [{ type: "text", text: "Switched theme!" }],
+        tool_calls: [
+          {
+            id: "call_123",
+            type: "function",
+            function: { name: "toggle_theme", arguments: '{"mode":"dark"}' },
+          },
+        ],
+      },
+      { role: "user", content: "Hello" },
+    ],
+  });
+
+  const parsed = JSON.parse(capturedBody);
+  assert.equal(parsed.messages.length, 3);
+  for (const msg of parsed.messages) {
+    assert.equal("tool_calls" in msg, false);
+    assert.equal("parts" in msg, false);
+    assert.ok(msg.role);
+    assert.ok(msg.content);
+  }
+});
+
+test("streamChatCompletion strips tool_calls from history messages before sending payload", async () => {
+  let capturedBody = "";
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(
+        encoder.encode(
+          'data: {"id":"c-1","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hi"}}]}\n\ndata: [DONE]\n\n',
+        ),
+      );
+      controller.close();
+    },
+  });
+
+  const mockFetch = (async (_url: string, init?: RequestInit) => {
+    capturedBody = init?.body as string;
+    return new Response(stream, {
+      status: 200,
+      headers: { "Content-Type": "text/event-stream" },
+    });
+  }) as unknown as typeof globalThis.fetch;
+
+  const client = new UniiClient({ apiKey: "test-key", fetch: mockFetch });
+
+  for await (const _ of client.streamChatCompletion({
+    messages: [
+      {
+        role: "assistant",
+        content: "Done",
+        tool_calls: [
+          {
+            id: "call_1",
+            type: "function",
+            function: { name: "toggle_theme", arguments: "{}" },
+          },
+        ],
+      },
+      { role: "user", content: "Next" },
+    ],
+  })) {
+    // consume stream
+  }
+
+  const parsed = JSON.parse(capturedBody);
+  assert.equal(parsed.messages.length, 2);
+  assert.equal("tool_calls" in parsed.messages[0], false);
+  assert.equal(parsed.messages[0].content, "Done");
+});
